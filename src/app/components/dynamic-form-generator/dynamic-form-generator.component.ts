@@ -33,7 +33,37 @@ export class DynamicFormGeneratorComponent implements OnChanges {
     this.form = this.formParserService.buildFormGroup(this.config);
   }
 
-  // 5. Handle form submission & validation triggers
+  // 5. Helper to check if a field has a 'required' validation rule
+  isFieldRequired(fieldName: string): boolean {
+    const field = this.config.fields.find((f) => f.name === fieldName);
+    return !!field?.validations?.some((v) => v.type === 'required');
+  }
+
+  // 6. Helper to retrieve the custom validation error message for a field
+  getErrorMessage(fieldName: string): string {
+    const control = this.form.get(fieldName);
+    const field = this.config.fields.find((f) => f.name === fieldName);
+
+    if (!control || !control.errors || !field?.validations) {
+      return '';
+    }
+
+    for (const validation of field.validations) {
+      if (
+        (validation.type === 'required' && control.hasError('required')) ||
+        (validation.type === 'email' && control.hasError('email')) ||
+        (validation.type === 'min' && control.hasError('minlength')) ||
+        (validation.type === 'max' && control.hasError('maxlength')) ||
+        (validation.type === 'pattern' && control.hasError('pattern'))
+      ) {
+        return validation.message;
+      }
+    }
+
+    return 'Invalid field';
+  }
+
+  // 7. Handle form submission & validation triggers
   onSubmit(): void {
     if (this.form && this.form.valid) {
       console.log('⚡ Dynamic Form Submitted Successfully:', this.form.value);

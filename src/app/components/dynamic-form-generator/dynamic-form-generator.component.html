@@ -1,1 +1,64 @@
-<p>dynamic-form-generator works!</p>
+<div class="max-w-xl mx-auto p-6 bg-slate-50 border border-slate-200 shadow-md rounded-lg">
+    <!-- Form Header -->
+    <h2 class="text-2xl font-extrabold text-slate-800 mb-1">{{ config.formTitle }}</h2>
+    @if (config.formDescription) {
+    <p class="text-sm text-slate-600 mb-6">{{ config.formDescription }}</p>
+    }
+
+    <!-- Dynamic Reactive Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+        @for (field of config.fields; track field.name) {
+        <div class="flex flex-col">
+            <!-- Field Label & Required Asterisk -->
+            <label [for]="field.name" class="text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+                {{ field.label }}
+                @if (isFieldRequired(field.name)) {
+                <span class="text-rose-500 font-extrabold" aria-hidden="true">*</span>
+                }
+            </label>
+
+            <!-- Dynamic Control Type Switcher -->
+            @switch (field.type) {
+            @case ('select') {
+            <select [id]="field.name" [formControlName]="field.name"
+                class="p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-slate-800 transition-shadow">
+                <option value="" disabled selected>Choose {{ field.label }}...</option>
+                @for (option of field.options; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+                }
+            </select>
+            }
+            @case ('textarea') {
+            <textarea [id]="field.name" [formControlName]="field.name" [placeholder]="field.placeholder || ''"
+                class="p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 transition-shadow min-h-[120px] resize-y"></textarea>
+            }
+            @case ('checkbox') {
+            <div class="flex items-start space-x-3 py-2">
+                <input type="checkbox" [id]="field.name" [formControlName]="field.name"
+                    class="h-5 w-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 mt-0.5">
+                <span class="text-sm text-slate-600">{{ field.placeholder || 'I acknowledge and agree' }}</span>
+            </div>
+            }
+            @default {
+            <input [type]="field.type" [id]="field.name" [formControlName]="field.name"
+                [placeholder]="field.placeholder || ''"
+                class="p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 transition-shadow">
+            }
+            }
+
+            <!-- Real-time Validation Error Banner -->
+            @if (form.get(field.name)?.touched && form.get(field.name)?.invalid) {
+            <span class="text-xs text-rose-600 mt-1 font-bold flex items-center" role="alert">
+                ⚠ {{ getErrorMessage(field.name) }}
+            </span>
+            }
+        </div>
+        }
+
+        <!-- Form Action Button -->
+        <button type="submit" [disabled]="form.invalid"
+            class="w-full mt-6 p-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-extrabold uppercase tracking-wider rounded transition-colors shadow">
+            {{ config.submitButtonLabel || 'Submit' }}
+        </button>
+    </form>
+</div>

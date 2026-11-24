@@ -19,7 +19,7 @@ export class AiFormStreamService {
             (async () => {
                 try {
                     const responseStream = await this.ai.models.generateContentStream({
-                        model: 'gemini-2.5-flash',
+                        model: 'gemini-3.8-flash',
                         contents: `Generate a dynamic form configuration based on this description: "${userPrompt}".
 You must output ONLY valid JSON without markdown code fences or commentary.
 Required top-level keys: formTitle, formDescription, submitButtonLabel, fields.`,

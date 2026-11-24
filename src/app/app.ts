@@ -2,43 +2,40 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormPromptControllerComponent } from './components/form-prompt-controller/form-prompt-controller.component';
 import { DynamicFormGeneratorComponent } from './components/dynamic-form-generator/dynamic-form-generator.component';
 import { AiFormStreamService } from './services/ai-form-stream.service';
 import { FormConfig } from './form-schema';
 
 
 @Component({
-  imports: [RouterOutlet, CommonModule, FormsModule, DynamicFormGeneratorComponent],
+  imports: [RouterOutlet, CommonModule, FormsModule, FormPromptControllerComponent, DynamicFormGeneratorComponent],
   selector: 'app-root',
   styleUrl: './app.css',
   standalone: true,
   templateUrl: './app.html',
 })
 export class App {
-  protected readonly title = signal('smart-form-generator');
   private streamService = inject(AiFormStreamService);
 
-  prompt = '';
   isLoading = signal(false);
-  streamingRawText = signal('');
+  streamFeed = signal('');
   currentConfig = signal<FormConfig | null>(null);
 
-  generate() {
-    if (!this.prompt.trim()) return;
-
+  onGenerate(prompt: string): void {
     this.isLoading.set(true);
+    this.streamFeed.set('');
     this.currentConfig.set(null);
-    this.streamingRawText.set('');
 
-    this.streamService.streamFormConfig(this.prompt).subscribe({
+    this.streamService.streamFormConfig(prompt).subscribe({
       next: (update) => {
-        this.streamingRawText.set(update.rawText);
+        this.streamFeed.set(update.rawText);
         if (update.config) {
           this.currentConfig.set(update.config);
         }
       },
       error: (err) => {
-        console.error('Streaming error:', err);
+        console.error('Generation failure:', err);
         this.isLoading.set(false);
       },
       complete: () => {

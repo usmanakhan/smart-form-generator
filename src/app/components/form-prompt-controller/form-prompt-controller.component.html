@@ -1,0 +1,44 @@
+<section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
+    <div>
+        <h3 class="text-base font-bold text-slate-800">Prompt Your AI Form Generator</h3>
+        <p class="text-xs text-slate-500">
+            Describe the fields, types, and validations you want, or click a preset below.
+        </p>
+    </div>
+
+    <!-- Quick Preset Chips -->
+    <div class="flex flex-wrap gap-2">
+        @for (preset of presets; track preset.label) {
+        <button type="button" (click)="selectPreset(preset.prompt)" [disabled]="isGenerating" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all
+                   border-slate-200 bg-slate-50 text-slate-700 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600
+                   disabled:opacity-50 disabled:cursor-not-allowed">
+            <span>{{ preset.icon }}</span>
+            <span>{{ preset.label }}</span>
+        </button>
+        }
+    </div>
+
+    <!-- Input Area & Action Button -->
+    <div class="flex gap-2 items-start">
+        <div class="relative flex-1">
+            <textarea [(ngModel)]="userPrompt" (keydown.enter)="onEnterPress($event)" [disabled]="isGenerating" rows="2"
+                placeholder="e.g., Build a user feedback form with rating selection, comments textarea, and email validation..."
+                class="w-full p-3 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none
+                   disabled:bg-slate-100 disabled:text-slate-400 resize-none transition-shadow">
+          </textarea>
+        </div>
+
+        <button type="button" (click)="triggerGenerate()" [disabled]="isGenerating || !userPrompt.trim()" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed
+                 text-white font-bold text-sm rounded-lg shadow transition-colors flex items-center gap-2">
+            @if (isGenerating) {
+            <svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>Generating...</span>
+            } @else {
+            <span>⚡ Generate</span>
+            }
+        </button>
+    </div>
+</section>
